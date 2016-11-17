@@ -26,7 +26,7 @@ RoomEvents.setMaxListeners(0);
  */
 const events = {
   'afterCreate': 'save',
-  'afterUpdate': 'save',
+  'afterUpdate': 'update',
   'afterDestroy': 'remove'
 };
 
@@ -35,7 +35,7 @@ const events = {
  */
 for (const e in events) {
   const event = events[e];
-  Room.schema.post(e, emitEvent(event));
+  Room.schema.post(event, emitEvent(event));
 }
 
 /**
@@ -45,10 +45,10 @@ for (const e in events) {
  * @param event - Event to emit
  */
 function emitEvent(event) {
-  return (doc, options, done) => {
+  return (doc, next) => {
     RoomEvents.emit(event + ':' + doc._id, doc);
     RoomEvents.emit(event, doc);
-    done(null);
+    next();
   }
 }
 

@@ -26,7 +26,7 @@ HouseEvents.setMaxListeners(0);
  */
 const events = {
   'afterCreate': 'save',
-  'afterUpdate': 'save',
+  'afterUpdate': 'update',
   'afterDestroy': 'remove'
 };
 
@@ -35,7 +35,7 @@ const events = {
  */
 for (const e in events) {
   const event = events[e];
-  House.schema.post(e, emitEvent(event));
+  House.schema.post(event, emitEvent(event));
 }
 
 /**
@@ -45,10 +45,10 @@ for (const e in events) {
  * @param event - Event to emit
  */
 function emitEvent(event) {
-  return (doc, options, done) => {
+  return (doc, next) => {
     HouseEvents.emit(event + ':' + doc._id, doc);
     HouseEvents.emit(event, doc);
-    done(null);
+    next();
   }
 }
 

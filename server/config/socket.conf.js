@@ -1,7 +1,7 @@
 'use strict';
 
-import ServiceSockets from '../api/service/service.socket';
-
+import HouseSockets from '../api/house/house.socket';
+import RoomSockets from '../api/room/room.socket';
 // When the user disconnects.. perform this
 function onDisconnect(socket) {
 }
@@ -13,7 +13,8 @@ function onConnect(socket) {
     socket.log(JSON.stringify(data, null, 2));
   });
 
-  ServiceSockets(socket);
+  HouseSockets(socket);
+  RoomSockets(socket);
 }
 
 function initSocket (socketio) {
