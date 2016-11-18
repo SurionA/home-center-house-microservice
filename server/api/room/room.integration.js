@@ -6,12 +6,37 @@ import Room from './room.model';
 
 let app = require('../../app');
 let newRoom;
+let newHouse;
 
 describe('Room API:', () => {
 
   before(done => {
-    Room.remove({})
-      .then(() => done())
+    request(app)
+       .post('/api/houses')
+       .send({
+         name: 'House Test',
+         address: 'My Street name',
+         town: 'My Town',
+         country: 'My Country'
+       })
+       .expect(201)
+       .expect('Content-Type', /json/)
+       .end((err, res) => {
+         if (err) return done(err);
+         newHouse = res.body;
+         Room.remove({})
+           .then(() => done())
+       });
+  });
+
+  after(done => {
+   request(app)
+     .delete('/api/houses/' + newHouse._id)
+     .expect(204)
+     .end((err, res) => {
+       if (err) return done(err);
+       done();
+     });
   });
 
   describe('GET /api/rooms', () => {
@@ -40,7 +65,8 @@ describe('Room API:', () => {
       request(app)
         .post('/api/rooms')
         .send({
-          name: 'Room Test'
+          name: 'Room Test',
+          house: newHouse._id
         })
         .expect(201)
         .expect('Content-Type', /json/)
@@ -58,6 +84,8 @@ describe('Room API:', () => {
       expect(newRoom._id).to.not.be.null;
       expect(newRoom).ownProperty('name');
       expect(newRoom.name).to.equal('Room Test');
+      expect(newRoom).ownProperty('house');
+      expect(newRoom.house).to.equal(newHouse._id);
       expect(newRoom).ownProperty('createdAt');
       expect(newRoom.createdAt).to.not.be.undefined;
       expect(newRoom.createdAt).to.not.be.null;
